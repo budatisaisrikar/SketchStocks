@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapitiShub — Inventory Management</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#080a0f;--panel:#11141b;--panel2:#151922;--border:#272c38;
+ --text:#f3f5f7;--muted:#8f98a8;--accent:#7c5cff;--accent2:#9b87ff;
+ --green:#35d07f;--yellow:#f4c95d;--red:#ff6577;--blue:#55a8ff;
+}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 80% 0%,#17112b 0,transparent 32%),var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button,.card,.nav-item,.table-wrap,.modal-box,.input,.select,.kpi{transition:.25s ease}
+.app{display:flex;min-height:100vh}
+.sidebar{width:250px;background:rgba(12,14,20,.92);border-right:1px solid var(--border);padding:22px 15px;position:fixed;left:0;top:0;bottom:0;z-index:20;backdrop-filter:blur(18px)}
+.brand{display:flex;align-items:center;gap:12px;padding:8px 10px 25px;font-weight:800;letter-spacing:.5px;font-size:20px}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#8d75ff,#4f37ba);box-shadow:inset 2px 2px 4px #b9acff44,inset -3px -3px 6px #24175e,0 8px 25px #6047ff33;display:grid;place-items:center;font-weight:900}
+.nav-title{font-size:11px;color:#667083;text-transform:uppercase;letter-spacing:1.4px;padding:15px 12px 8px}
+.nav-item{display:flex;align-items:center;gap:12px;color:#9da5b5;text-decoration:none;padding:11px 13px;border-radius:11px;margin:3px 0;cursor:pointer}
+.nav-item:hover{background:#1a1e28;color:#fff;transform:translateX(3px);box-shadow:inset 1px 1px 2px #ffffff0c,0 8px 20px #0004}
+.nav-item.active{background:linear-gradient(90deg,#252035,#171923);color:#fff;box-shadow:inset 2px 0 var(--accent),inset 1px 1px 3px #ffffff0a}
+.nav-item span:first-child{width:22px;text-align:center}
+.profile-mini{position:absolute;bottom:18px;left:15px;right:15px;border-top:1px solid var(--border);padding-top:15px}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#29233e;color:#c9beff;font-weight:700}
+.user-mini{display:flex;gap:10px;align-items:center;padding:8px}
+.main{margin-left:250px;width:calc(100% - 250px);padding:25px 30px}
+.topbar{height:55px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.search{width:340px;position:relative}.search input{width:100%;padding:12px 15px 12px 40px}
+.search:before{content:"⌕";position:absolute;left:15px;top:8px;color:#8790a2;font-size:21px;z-index:2}
+.input,.select{background:#0e1117;color:#e9ecf2;border:1px solid var(--border);border-radius:10px;padding:11px 13px;outline:none}
+.input:focus,.select:focus{border-color:var(--accent);box-shadow:0 0 0 3px #7c5cff18}
+.top-actions{display:flex;gap:10px;align-items:center}.icon-btn{width:42px;height:42px;border:1px solid var(--border);background:#12151c;color:#cbd1dc;border-radius:11px;box-shadow:inset 1px 1px 3px #ffffff08}.icon-btn:hover{transform:translateY(-2px);border-color:#6253a4;color:#fff}
+.page{display:none;animation:fade .3s ease}.page.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px}.eyebrow{color:var(--accent2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}.page-title{font-size:30px;margin-top:5px}.subtitle{color:var(--muted);margin-top:7px}
+.btn{border:1px solid var(--border);background:#151922;color:#e9ecf3;padding:11px 16px;border-radius:10px;box-shadow:inset 1px 1px 3px #ffffff09,0 7px 18px #0005}.btn:hover{transform:translateY(-2px);border-color:#6253a4;box-shadow:0 10px 25px #0007}.btn.primary{background:linear-gradient(145deg,#8269ff,#5b43d4);border-color:#8e7aff;color:#fff}.btn.danger{color:#ff8795}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}.kpi{background:linear-gradient(145deg,#181c25,#101319);border:1px solid var(--border);border-radius:15px;padding:18px;box-shadow:inset 1px 1px 4px #ffffff08,inset -2px -2px 6px #0008,0 12px 30px #0004}.kpi:hover{transform:translateY(-5px);border-color:#5c50a0;box-shadow:0 16px 35px #0008,0 0 22px #7c5cff14}.kpi-top{display:flex;justify-content:space-between;color:#9ba4b4;font-size:13px}.kpi-icon{width:34px;height:34px;border-radius:10px;background:#211d32;display:grid;place-items:center;color:#a998ff}.kpi-num{font-size:28px;font-weight:800;margin-top:16px}.trend{font-size:12px;color:var(--green);margin-top:6px}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-bottom:16px}.card{background:linear-gradient(145deg,#151922,#101319);border:1px solid var(--border);border-radius:15px;padding:18px;box-shadow:inset 1px 1px 4px #ffffff07,0 10px 28px #0004}.card:hover{border-color:#343b4b}.card-title{font-weight:700}.card-sub{font-size:12px;color:var(--muted);margin-top:5px}
+.chart{height:230px;display:flex;align-items:end;gap:13px;padding:25px 10px 5px}.bar{flex:1;background:linear-gradient(#866fff,#4934a5);border-radius:7px 7px 3px 3px;box-shadow:0 0 18px #735bff22;position:relative;min-height:15px}.bar:hover{filter:brightness(1.25);transform:translateY(-3px)}.bar small{position:absolute;bottom:-22px;width:100%;text-align:center;color:#70798a;font-size:10px}
+.activity{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #20242e}.activity:last-child{border:0}.dot{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:6px;box-shadow:0 0 12px #7c5cff88}.activity b{font-size:13px}.activity p{font-size:12px;color:var(--muted);margin-top:4px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.filters .input{min-width:240px}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px;background:#101319;box-shadow:inset 0 1px 3px #fff1}.table-wrap:hover{border-color:#343b4b}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:14px 15px;border-bottom:1px solid #222631;font-size:13px}th{color:#747e91;font-size:11px;text-transform:uppercase;letter-spacing:.8px;background:#13161d}tbody tr:hover{background:#171b24}td{color:#dce0e8}.muted{color:var(--muted)}
+.badge{display:inline-flex;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#222633;color:#c8ceda}.done{background:#123322;color:#5de09a}.ready{background:#102c45;color:#68b7ff}.waiting{background:#342c12;color:#f2ca68}.draft{background:#252832;color:#aab2c1}.cancel{background:#3a1820;color:#ff8291}.low{background:#3a2b0e;color:#f6cc63}.out{background:#3a1720;color:#ff7180}
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.empty{padding:45px;text-align:center;color:var(--muted)}
+.modal{position:fixed;inset:0;background:#0009;backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:50}.modal.show{display:flex}.modal-box{width:min(650px,92vw);max-height:90vh;overflow:auto;background:#13161e;border:1px solid #343a48;border-radius:18px;padding:22px;box-shadow:0 25px 80px #000c, inset 1px 1px 4px #ffffff0a;animation:pop .22s ease}@keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.close{background:none;border:0;color:#9da5b4;font-size:24px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field label{display:block;color:#9ba3b3;font-size:12px;margin-bottom:6px}.field.full{grid-column:1/-1}.field .input,.field .select{width:100%}.modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.toast{position:fixed;right:25px;bottom:25px;background:#181d26;border:1px solid #3a4150;padding:14px 17px;border-radius:12px;box-shadow:0 15px 40px #0009;transform:translateY(100px);opacity:0;z-index:100;transition:.3s}.toast.show{transform:none;opacity:1}.toast b{color:#72e2a3}
+.cursor-glow{position:fixed;width:260px;height:260px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,#7c5cff12,transparent 65%);transform:translate(-50%,-50%);z-index:0}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr}}
+@media(max-width:800px){.sidebar{width:70px;padding:18px 9px}.brand span,.nav-item span:last-child,.nav-title,.user-mini>div{display:none}.nav-item{justify-content:center}.profile-mini{left:9px;right:9px}.main{margin-left:70px;width:calc(100% - 70px);padding:18px}.kpis{grid-template-columns:1fr 1fr}.search{width:210px}.page-title{font-size:24px}}
+@media(max-width:560px){.kpis{grid-template-columns:1fr}.topbar{gap:8px}.search{width:100%}.top-actions{display:none}.page-head{align-items:flex-start;gap:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<div class="cursor-glow" id="glow"></div>
+
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">C</div><span>CAPITISHUB</span></div>
+  <div class="nav-title">Workspace</div>
+  <div class="nav-item active" data-page="dashboard"><span>⌂</span><span>Dashboard</span></div>
+  <div class="nav-title">Catalog</div>
+  <div class="nav-item" data-page="products"><span>▦</span><span>Products</span></div>
+  <div class="nav-item" data-page="categories"><span>◈</span><span>Categories</span></div>
+  <div class="nav-item" data-page="reorder"><span>↻</span><span>Reordering Rules</span></div>
+  <div class="nav-title">Operations</div>
+  <div class="nav-item" data-page="receipts"><span>↓</span><span>Receipts</span></div>
+  <div class="nav-item" data-page="deliveries"><span>↑</span><span>Delivery Orders</span></div>
+  <div class="nav-item" data-page="transfers"><span>⇄</span><span>Internal Transfers</span></div>
+  <div class="nav-item" data-page="adjustments"><span>±</span><span>Adjustments</span></div>
+  <div class="nav-item" data-page="history"><span>☷</span><span>Move History</span></div>
+  <div class="nav-title">System</div>
+  <div class="nav-item" data-page="warehouse"><span>⌂</span><span>Warehouse</span></div>
+  <div class="nav-item" data-page="profile"><span>◉</span><span>My Profile</span></div>
+  <div class="profile-mini"><div class="user-mini"><div class="avatar">ES</div><div><b style="font-size:12px">Eesha</b><small style="display:block;color:#737d8d">Inventory Manager</small></div></div></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div class="search"><input class="input" id="globalSearch" placeholder="Search products, SKU, operations..."></div>
+  <div class="top-actions"><button class="icon-btn" onclick="notify('You have 3 new inventory alerts')">♧</button><button class="icon-btn" onclick="showPage('profile')">ES</button></div>
+</header>
+
+<section class="page active" id="dashboard">
+  <div class="page-head"><div><div class="eyebrow">Inventory Overview</div><h1 class="page-title">Welcome to CapitiShub</h1><p class="subtitle">Here's what's happening with your inventory today.</p></div></div>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-top"><span>Total Products in Stock</span><div class="kpi-icon">▦</div></div><div class="kpi-num" id="kpiStock">0</div><div class="trend">↑ Live inventory</div></div>
+    <div class="kpi"><div class="kpi-top"><span>Low Stock</span><div class="kpi-icon">!</div></div><div class="kpi-num" id="kpiLow">0</div><div class="trend" style="color:var(--yellow)">Needs attention</div></div>
+    <div class="kpi"><div class="kpi-top"><span>Out of Stock</span><div class="kpi-icon">×</div></div><div class="kpi-num" id="kpiOut">0</div><div class="trend" style="color:var(--red)">Critical</div></div>
+    <div class="kpi"><div class="kpi-top"><span>Pending Receipts</span><div class="kpi-icon">↓</div></div><div class="kpi-num" id="kpiReceipts">0</div><div class="trend">Awaiting processing</div></div>
+    <div class="kpi"><div class="kpi-top"><span>Pending Deliveries</span><div class="kpi-icon">↑</div></div><div class="kpi-num" id="kpiDeliveries">0</div><div class="trend">Awaiting dispatch</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-title">Stock Movement</div><div class="card-sub">Last 7 days</div><div class="chart" id="chart"></div></div>
+    <div class="card"><div class="card-title">Recent Operations</div><div class="card-sub">Latest inventory activity</div><div id="activity"></div></div>
+  </div>
+  <div class="card"><div class="card-title">Low Stock Products</div><div class="card-sub">Products approaching their reorder level</div><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>Product</th><th>SKU</th><th>Stock</th><th>Reorder</th><th>Status</th></tr></thead><tbody id="lowTable"></tbody></table></div></div>
+</section>
+
+<section class="page" id="products">
+  <div class="page-head"><div><div class="eyebrow">Catalog</div><h1 class="page-title">Products</h1><p class="subtitle">Manage products, stock and locations.</p></div><button class="btn primary" onclick="openProductModal()">＋ Add Product</button></div>
+  <div class="filters"><input class="input" id="productSearch" placeholder="Search by name or SKU..." oninput="renderProducts()"><select class="select" id="categoryFilter" onchange="renderProducts()"><option value="">All Categories</option><option>Raw Materials</option><option>Finished Goods</option><option>Safety</option><option>Packaging</option></select><select class="select" id="stockFilter" onchange="renderProducts()"><option value="">All Stock</option><option value="low">Low Stock</option><option value="out">Out of Stock</option></select></div>
+  <div class="table-wrap"><table><thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Stock</th><th>Location</th><th>Reorder</th><th>Status</th><th>Action</th></tr></thead><tbody id="productTable"></tbody></table></div>
+</section>
+
+<section class="page" id="categories"><div class="page-head"><div><div class="eyebrow">Catalog</div><h1 class="page-title">Categories</h1><p class="subtitle">Organize your product catalog.</p></div><button class="btn primary" onclick="addCategory()">＋ Add Category</button></div><div class="grid2" id="categoryCards"></div></section>
+
+<section class="page" id="reorder"><div class="page-head"><div><div class="eyebrow">Inventory Control</div><h1 class="page-title">Reordering Rules</h1><p class="subtitle">Monitor minimum stock levels.</p></div></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>SKU</th><th>Minimum</th><th>Current</th><th>Reorder Qty</th><th>Status</th></tr></thead><tbody id="reorderTable"></tbody></table></div></section>
+
+<section class="page" id="receipts"><div class="page-head"><div><div class="eyebrow">Operations</div><h1 class="page-title">Receipts</h1><p class="subtitle">Manage incoming goods from suppliers.</p></div><button class="btn primary" onclick="openReceiptModal()">＋ New Receipt</button></div><div class="table-wrap"><table><thead><tr><th>Receipt</th><th>Supplier</th><th>Product</th><th>Qty</th><th>Warehouse</th><th>Status</th><th>Action</th></tr></thead><tbody id="receiptTable"></tbody></table></div></section>
+
+<section class="page" id="deliveries"><div class="page-head"><div><div class="eyebrow">Operations</div><h1 class="page-title">Delivery Orders</h1><p class="subtitle">Pick, pack and dispatch outgoing stock.</p></div><button class="btn primary" onclick="openDeliveryModal()">＋ New Delivery</button></div><div class="table-wrap"><table><thead><tr><th>Delivery</th><th>Customer</th><th>Product</th><th>Qty</th><th>Warehouse</th><th>Status</th><th>Action</th></tr></thead><tbody id="deliveryTable"></tbody></table></div></section>
+
+<section class="page" id="transfers"><div class="page-head"><div><div class="eyebrow">Operations</div><h1 class="page-title">Internal Transfers</h1><p class="subtitle">Move stock between warehouses and locations.</p></div><button class="btn primary" onclick="openTransferModal()">＋ New Transfer</button></div><div class="table-wrap"><table><thead><tr><th>Reference</th><th>Product</th><th>Qty</th><th>From</th><th>To</th><th>Status</th><th>Action</th></tr></thead><tbody id="transferTable"></tbody></table></div></section>
+
+<section class="page" id="adjustments"><div class="page-head"><div><div class="eyebrow">Operations</div><h1 class="page-title">Inventory Adjustments</h1><p class="subtitle">Correct stock mismatches after physical counts.</p></div><button class="btn primary" onclick="openAdjustmentModal()">＋ New Adjustment</button></div><div class="table-wrap"><table><thead><tr><th>Reference</th><th>Product</th><th>Recorded</th><th>Counted</th><th>Difference</th><th>Reason</th></tr></thead><tbody id="adjustmentTable"></tbody></table></div></section>
+
+<section class="page" id="history"><div class="page-head"><div><div class="eyebrow">Audit Trail</div><h1 class="page-title">Move History</h1><p class="subtitle">Every inventory movement in one ledger.</p></div></div><div class="filters"><select class="select" id="historyType" onchange="renderHistory()"><option value="">All Operations</option><option>Receipt</option><option>Delivery</option><option>Transfer</option><option>Adjustment</option></select></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Reference</th><th>Operation</th><th>Product</th><th>From</th><th>To</th><th>Qty</th><th>Before</th><th>After</th></tr></thead><tbody id="historyTable"></tbody></table></div></section>
+
+<section class="page" id="warehouse"><div class="page-head"><div><div class="eyebrow">System</div><h1 class="page-title">Warehouse</h1><p class="subtitle">Manage warehouses and stock locations.</p></div><button class="btn primary" onclick="notify('Warehouse creation demo opened')">＋ Add Warehouse</button></div><div class="grid2"><div class="card"><div class="eyebrow">MAIN WAREHOUSE</div><h2 style="margin:10px 0">Main Warehouse</h2><p class="muted">3 Zones · 8 Locations</p><h2 style="margin-top:20px" id="mainWarehouseStock">0</h2><p class="muted">Units currently stored</p></div><div class="card"><div class="eyebrow">PRODUCTION</div><h2 style="margin:10px 0">Production Warehouse</h2><p class="muted">2 Zones · 5 Locations</p><h2 style="margin-top:20px">1,240</h2><p class="muted">Units currently stored</p></div></div></section>
+
+<section class="page" id="profile"><div class="page-head"><div><div class="eyebrow">Account</div><h1 class="page-title">My Profile</h1><p class="subtitle">Manage your CapitiShub account.</p></div></div><div class="card" style="max-width:650px"><div style="display:flex;align-items:center;gap:15px;margin-bottom:25px"><div class="avatar" style="width:60px;height:60px;font-size:20px">ES</div><div><h2>Eesha Suvarnapudi</h2><p class="muted">Inventory Manager</p></div></div><div class="form-grid"><div class="field"><label>Full Name</label><input class="input" value="Eesha Suvarnapudi"></div><div class="field"><label>Email</label><input class="input" value="eesha@example.com"></div><div class="field"><label>Role</label><input class="input" value="Inventory Manager" disabled></div><div class="field"><label>Account Created</label><input class="input" value="September 2026" disabled></div></div><button class="btn primary" style="margin-top:18px" onclick="notify('Profile saved successfully')">Save Changes</button></div></section>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+<div class="toast" id="toast"><b>✓ Success</b><div id="toastText"></div></div>
+
+<script>
+let products=[
+ {id:1,name:"Steel Rods",sku:"STL-001",category:"Raw Materials",unit:"kg",stock:100,reorder:20,location:"Rack A",warehouse:"Main Warehouse"},
+ {id:2,name:"Office Chairs",sku:"CHR-001",category:"Finished Goods",unit:"units",stock:45,reorder:15,location:"Rack B",warehouse:"Main Warehouse"},
+ {id:3,name:"Wooden Panels",sku:"WPN-001",category:"Raw Materials",unit:"units",stock:75,reorder:20,location:"Rack A",warehouse:"Main Warehouse"},
+ {id:4,name:"Safety Helmets",sku:"SH-001",category:"Safety",unit:"units",stock:8,reorder:10,location:"Rack C",warehouse:"Main Warehouse"},
+ {id:5,name:"Packaging Boxes",sku:"BOX-001",category:"Packaging",unit:"units",stock:200,reorder:50,location:"Dispatch Area",warehouse:"Main Warehouse"}
+];
+let receipts=[
+ {id:"RCV-001",supplier:"Tata Steel",product:"Steel Rods",qty:100,warehouse:"Main Warehouse",status:"Done"},
+ {id:"RCV-002",supplier:"SafeWork Ltd",product:"Safety Helmets",qty:30,warehouse:"Main Warehouse",status:"Waiting"}
+];
+let deliveries=[
+ {id:"DEL-001",customer:"BuildRight Pvt Ltd",product:"Office Chairs",qty:10,warehouse:"Main Warehouse",status:"Done"},
+ {id:"DEL-002",customer:"Metro Projects",product:"Wooden Panels",qty:12,warehouse:"Main Warehouse",status:"Ready"}
+];
+let transfers=[
+ {id:"TRF-001",product:"Steel Rods",qty:40,from:"Main Store",to:"Production Rack",status:"Done"}
+];
+let adjustments=[];
+let ledger=[
+ {date:"Today 09:12",ref:"RCV-001",type:"Receipt",product:"Steel Rods",from:"Supplier",to:"Main Store",qty:"+100",before:"0",after:"100"},
+ {date:"Today 09:25",ref:"TRF-001",type:"Transfer",product:"Steel Rods",from:"Main Store",to:"Production Rack",qty:"40",before:"100",after:"100"},
+ {date:"Today 10:02",ref:"DEL-001",type:"Delivery",product:"Office Chairs",from:"Main Warehouse",to:"Customer",qty:"-10",before:"55",after:"45"}
+];
+
+function showPage(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
+ document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.page===page));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".nav-item").forEach(n=>n.onclick=()=>showPage(n.dataset.page));
+
+function statusBadge(s){
+ let c=s.toLowerCase().replace(" ",""); if(c==="done")c="done"; if(c==="ready")c="ready"; if(c==="waiting")c="waiting"; if(c==="canceled")c="cancel";
+ return `<span class="badge ${c}">${s}</span>`;
+}
+function getProduct(name){return products.find(p=>p.name===name)}
+
+function renderAll(){
+ renderProducts(); renderReceipts(); renderDeliveries(); renderTransfers(); renderAdjustments(); renderHistory(); renderReorder(); renderCategories(); updateDashboard();
+}
+function updateDashboard(){
+ const total=products.reduce((a,p)=>a+p.stock,0);
+ const low=products.filter(p=>p.stock>0&&p.stock<=p.reorder).length;
+ const out=products.filter(p=>p.stock===0).length;
+ const pr=receipts.filter(r=>r.status!=="Done"&&r.status!=="Canceled").length;
+ const pd=deliveries.filter(r=>r.status!=="Done"&&r.status!=="Canceled").length;
+ document.getElementById("kpiStock").textContent=total.toLocaleString();
+ document.getElementById("kpiLow").textContent=low;
+ document.getElementById("kpiOut").textContent=out;
+ document.getElementById("kpiReceipts").textContent=pr;
+ document.getElementById("kpiDeliveries").textContent=pd;
+ document.getElementById("mainWarehouseStock").textContent=total.toLocaleString();
+ document.getElementById("lowTable").innerHTML=products.filter(p=>p.stock<=p.reorder).map(p=>`<tr><td><b>${p.name}</b></td><td>${p.sku}</td><td>${p.stock} ${p.unit}</td><td>${p.reorder}</td><td>${p.stock===0?'<span class="badge out">Out of Stock</span>':'<span class="badge low">Low Stock</span>'}</td></tr>`).join("")||`<tr><td colspan="5" class="empty">All products are healthy.</td></tr>`;
+ document.getElementById("activity").innerHTML=ledger.slice(-5).reverse().map(x=>`<div class="activity"><div class="dot"></div><div><b>${x.type}: ${x.product}</b><p>${x.qty} · ${x.from} → ${x.to} · ${x.date}</p></div></div>`).join("");
+ const vals=[35,60,42,78,55,88,68];document.getElementById("chart").innerHTML=vals.map((v,i)=>`<div class="bar" style="height:${v}%"><small>${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i]}</small></div>`).join("");
+}
+
+function renderProducts(){
+ let q=(document.getElementById("productSearch")?.value||"").toLowerCase(),cat=document.getElementById("categoryFilter")?.value||"",sf=document.getElementById("stockFilter")?.value||"";
+ let arr=products.filter(p=>(p.name.toLowerCase().includes(q)||p.sku.toLowerCase().includes(q))&&(!cat||p.category===cat)&&(!sf||(sf==="low"?p.stock>0&&p.stock<=p.reorder:p.stock===0)));
+ document.getElementById("productTable").innerHTML=arr.map(p=>`<tr><td><b>${p.name}</b><br><span class="muted">${p.unit}</span></td><td>${p.sku}</td><td>${p.category}</td><td>${p.stock}</td><td>${p.location}</td><td>${p.reorder}</td><td>${p.stock===0?'<span class="badge out">Out of Stock</span>':p.stock<=p.reorder?'<span class="badge low">Low Stock</span>':'<span class="badge done">Healthy</span>'}</td><td><button class="btn" style="padding:6px 9px" onclick="editProduct(${p.id})">Edit</button></td></tr>`).join("")||`<tr><td colspan="8" class="empty">No products found.</td></tr>`;
+}
+function renderCategories(){
+ let cats=[...new Set(products.map(p=>p.category))];
+ document.getElementById("categoryCards").innerHTML=cats.map(c=>{let ps=products.filter(p=>p.category===c);return `<div class="card"><div class="eyebrow">${c}</div><h2 style="margin:10px 0">${ps.length} Products</h2><p class="muted">${ps.reduce((a,p)=>a+p.stock,0)} units currently in stock</p></div>`}).join("");
+}
+function renderReorder(){document.getElementById("reorderTable").innerHTML=products.map(p=>`<tr><td><b>${p.name}</b></td><td>${p.sku}</td><td>${p.reorder}</td><td>${p.stock}</td><td>${Math.max(p.reorder*2-p.stock,0)}</td><td>${p.stock<=p.reorder?(p.stock===0?'<span class="badge out">Out of Stock</span>':'<span class="badge low">Reorder</span>'):'<span class="badge done">Healthy</span>'}</td></tr>`).join("")}
+function renderReceipts(){document.getElementById("receiptTable").innerHTML=receipts.map(r=>`<tr><td>${r.id}</td><td>${r.supplier}</td><td>${r.product}</td><td>${r.qty}</td><td>${r.warehouse}</td><td>${statusBadge(r.status)}</td><td>${r.status!=="Done"&&r.status!=="Canceled"?`<button class="btn primary" style="padding:6px 9px" onclick="validateReceipt('${r.id}')">Validate</button>`:"—"}</td></tr>`).join("")}
+function renderDeliveries(){document.getElementById("deliveryTable").innerHTML=deliveries.map(r=>`<tr><td>${r.id}</td><td>${r.customer}</td><td>${r.product}</td><td>${r.qty}</td><td>${r.warehouse}</td><td>${statusBadge(r.status)}</td><td>${r.status!=="Done"&&r.status!=="Canceled"?`<button class="btn primary" style="padding:6px 9px" onclick="validateDelivery('${r.id}')">Validate</button>`:"—"}</td></tr>`).join("")}
+function renderTransfers(){document.getElementById("transferTable").innerHTML=transfers.map(r=>`<tr><td>${r.id}</td><td>${r.product}</td><td>${r.qty}</td><td>${r.from}</td><td>${r.to}</td><td>${statusBadge(r.status)}</td><td>${r.status!=="Done"?`<button class="btn primary" style="padding:6px 9px" onclick="validateTransfer('${r.id}')">Validate</button>`:"—"}</td></tr>`).join("")}
+function renderAdjustments(){document.getElementById("adjustmentTable").innerHTML=adjustments.map(r=>`<tr><td>${r.id}</td><td>${r.product}</td><td>${r.recorded}</td><td>${r.counted}</td><td style="color:${r.diff<0?'var(--red)':'var(--green)'}">${r.diff>0?"+":""}${r.diff}</td><td>${r.reason}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No adjustments yet.</td></tr>`}
+function renderHistory(){let f=document.getElementById("historyType")?.value||"";document.getElementById("historyTable").innerHTML=ledger.filter(x=>!f||x.type===f).slice().reverse().map(x=>`<tr><td>${x.date}</td><td>${x.ref}</td><td>${x.type}</td><td>${x.product}</td><td>${x.from}</td><td>${x.to}</td><td>${x.qty}</td><td>${x.before}</td><td>${x.after}</td></tr>`).join("")}
+function openModal(title,body,submit){document.getElementById("modalBox").innerHTML=`<div class="modal-head"><h2>${title}</h2><button class="close" onclick="closeModal()">×</button></div>${body}<div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="${submit}">Save</button></div>`;document.getElementById("modal").classList.add("show")}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")closeModal()}
+
+function productOptions(){return products.map(p=>`<option>${p.name}</option>`).join("")}
+function openProductModal(){openModal("Add Product",`<div class="form-grid">
+<div class="field"><label>Product Name</label><input id="mName" class="input" placeholder="e.g. Steel Rods"></div>
+<div class="field"><label>SKU / Code</label><input id="mSku" class="input" placeholder="STL-001"></div>
+<div class="field"><label>Category</label><select id="mCat" class="select"><option>Raw Materials</option><option>Finished Goods</option><option>Safety</option><option>Packaging</option></select></div>
+<div class="field"><label>Unit</label><input id="mUnit" class="input" value="units"></div>
+<div class="field"><label>Initial Stock</label><input id="mStock" type="number" class="input" value="0"></div>
+<div class="field"><label>Reorder Level</label><input id="mReorder" type="number" class="input" value="10"></div>
+<div class="field full"><label>Location</label><input id="mLocation" class="input" value="Rack A"></div>
+</div>`,"saveProduct()")}
+function saveProduct(){let p={id:Date.now(),name:mName.value,sku:mSku.value,category:mCat.value,unit:mUnit.value,stock:+mStock.value,reorder:+mReorder.value,location:mLocation.value,warehouse:"Main Warehouse"};if(!p.name||!p.sku)return notify("Please enter product name and SKU");products.push(p);if(p.stock)ledger.push({date:"Just now",ref:"NEW-"+p.sku,type:"Receipt",product:p.name,from:"Opening Stock",to:p.location,qty:"+"+p.stock,before:"0",after:""+p.stock});closeModal();renderAll();notify("Product created successfully")}
+function editProduct(id){let p=products.find(x=>x.id===id);openModal("Edit Product",`<div class="form-grid"><div class="field"><label>Product Name</label><input id="eName" class="input" value="${p.name}"></div><div class="field"><label>Reorder Level</label><input id="eReorder" type="number" class="input" value="${p.reorder}"></div></div>`,"saveEdit("+id+")")}
+function saveEdit(id){let p=products.find(x=>x.id===id);p.name=eName.value;p.reorder=+eReorder.value;closeModal();renderAll();notify("Product updated")}
+
+function openReceiptModal(){openModal("New Receipt",`<div class="form-grid"><div class="field"><label>Supplier</label><input id="rSupplier" class="input" placeholder="Supplier name"></div><div class="field"><label>Product</label><select id="rProduct" class="select">${productOptions()}</select></div><div class="field"><label>Quantity Received</label><input id="rQty" type="number" class="input" value="10"></div><div class="field"><label>Warehouse</label><select id="rWarehouse" class="select"><option>Main Warehouse</option><option>Production Warehouse</option></select></div></div>`,"saveReceipt()")}
+function saveReceipt(){let id="RCV-"+String(receipts.length+1).padStart(3,"0");receipts.push({id,supplier:rSupplier.value,product:rProduct.value,qty:+rQty.value,warehouse:rWarehouse.value,status:"Ready"});closeModal();renderAll();notify("Receipt created — ready to validate")}
+function validateReceipt(id){let r=receipts.find(x=>x.id===id),p=getProduct(r.product);let before=p.stock;p.stock+=r.qty;r.status="Done";ledger.push({date:"Just now",ref:r.id,type:"Receipt",product:p.name,from:r.supplier,to:r.warehouse,qty:"+"+r.qty,before,after:p.stock});renderAll();notify("Receipt validated. Stock increased by "+r.qty)}
+
+function openDeliveryModal(){openModal("New Delivery",`<div class="form-grid"><div class="field"><label>Customer</label><input id="dCustomer" class="input" placeholder="Customer name"></div><div class="field"><label>Product</label><select id="dProduct" class="select">${productOptions()}</select></div><div class="field"><label>Quantity</label><input id="dQty" type="number" class="input" value="1"></div><div class="field"><label>Warehouse</label><select id="dWarehouse" class="select"><option>Main Warehouse</option><option>Production Warehouse</option></select></div></div>`,"saveDelivery()")}
+function saveDelivery(){let p=getProduct(dProduct.value),q=+dQty.value;if(q>p.stock)return notify("Insufficient stock. Available: "+p.stock);let id="DEL-"+String(deliveries.length+1).padStart(3,"0");deliveries.push({id,customer:dCustomer.value,product:p.name,qty:q,warehouse:dWarehouse.value,status:"Ready"});closeModal();renderAll();notify("Delivery created — ready to validate")}
+function validateDelivery(id){let r=deliveries.find(x=>x.id===id),p=getProduct(r.product);if(p.stock<r.qty)return notify("Insufficient stock. Available: "+p.stock);let before=p.stock;p.stock-=r.qty;r.status="Done";ledger.push({date:"Just now",ref:r.id,type:"Delivery",product:p.name,from:r.warehouse,to:r.customer,qty:"-"+r.qty,before,after:p.stock});renderAll();notify("Delivery validated. Stock decreased by "+r.qty)}
+
+function openTransferModal(){openModal("New Internal Transfer",`<div class="form-grid"><div class="field"><label>Product</label><select id="tProduct" class="select">${productOptions()}</select></div><div class="field"><label>Quantity</label><input id="tQty" type="number" class="input" value="1"></div><div class="field"><label>From Location</label><input id="tFrom" class="input" value="Main Store"></div><div class="field"><label>To Location</label><input id="tTo" class="input" value="Production Rack"></div></div>`,"saveTransfer()")}
+function saveTransfer(){let p=getProduct(tProduct.value),q=+tQty.value;if(q>p.stock)return notify("Insufficient stock for transfer");let id="TRF-"+String(transfers.length+1).padStart(3,"0");transfers.push({id,product:p.name,qty:q,from:tFrom.value,to:tTo.value,status:"Ready"});closeModal();renderAll();notify("Transfer created — ready to validate")}
+function validateTransfer(id){let r=transfers.find(x=>x.id===id),p=getProduct(r.product);if(p.stock<r.qty)return notify("Insufficient stock");let before=p.stock;r.status="Done";ledger.push({date:"Just now",ref:r.id,type:"Transfer",product:p.name,from:r.from,to:r.to,qty:r.qty,before,after:p.stock});closeModal();renderAll();notify("Transfer validated. Total stock unchanged")}
+
+function openAdjustmentModal(){openModal("New Stock Adjustment",`<div class="form-grid"><div class="field"><label>Product</label><select id="aProduct" class="select">${productOptions()}</select></div><div class="field"><label>Counted Quantity</label><input id="aCounted" type="number" class="input" value="0"></div><div class="field full"><label>Reason</label><select id="aReason" class="select"><option>Damaged</option><option>Lost</option><option>Found</option><option>Counting Error</option><option>Other</option></select></div></div>`,"saveAdjustment()")}
+function saveAdjustment(){let p=getProduct(aProduct.value),before=p.stock,count=+aCounted.value,diff=count-before;let id="ADJ-"+String(adjustments.length+1).padStart(3,"0");p.stock=count;adjustments.push({id,product:p.name,recorded:before,counted:count,diff,reason:aReason.value});ledger.push({date:"Just now",ref:id,type:"Adjustment",product:p.name,from:"Physical Count",to:aReason.value,qty:(diff>=0?"+":"")+diff,before,after:count});closeModal();renderAll();notify("Stock adjustment saved")}
+function addCategory(){let c=prompt("Enter category name:");if(c){notify("Category '"+c+"' added to demo");}}
+
+function notify(msg){let t=document.getElementById("toast"),x=document.getElementById("toastText");x.textContent=msg;t.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),2800)}
+document.getElementById("globalSearch").addEventListener("keydown",e=>{if(e.key==="Enter"){showPage("products");document.getElementById("productSearch").value=e.target.value;renderProducts()}})
+document.addEventListener("mousemove",e=>{let g=document.getElementById("glow");g.style.left=e.clientX+"px";g.style.top=e.clientY+"px"});
+renderAll();
+</script>
+</body>
+</html>
